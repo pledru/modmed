@@ -1,0 +1,35 @@
+<html>
+<head>
+<script>
+function submit() {
+  let email = document.getElementById('email').value
+  let password = document.getElementById('password').value
+  let data = { email: email, password: password }
+  fetch('/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    body: JSON.stringify(data)
+  }).
+  then(res => res.json()).
+  then(response => {
+  }).
+  catch(error => alert(error))
+}
+</script>
+</head>
+
+<body>
+<div>
+<label for='email'>Email:</label>
+<input type='text' id='email' name='email' required />
+<br>
+<label for='password'>Password:</label>
+<input type='password' id='password' name='password' required />
+</div>
+
+<button onclick='submit()'>Login</button>
+<a href='signup.html'>Create account</a>
+</body>
+</html>
