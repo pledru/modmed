@@ -1,9 +1,17 @@
 const jwt = require('jsonwebtoken')
 const UserService = require('../database/services/userService')
 
+function noCaching(res) {
+  res.setHeader('Cache-Control', `no-cache, no-store, must-revalidate`)
+}
+
 function addToken(email, id, res) {
   const token = jwt.sign({email: email, id: id}, process.env.JWT_SECRET, {expiresIn: 86400})
   res.setHeader('x-access-token', token)
+}
+
+function removeToken(res) {
+  res.removeHeader('x-access-token')
 }
 
 async function verifyToken(req, res, next) {
@@ -27,11 +35,13 @@ async function verifyToken(req, res, next) {
       }
     }
   } catch (error) {
+    console.log(error)
     return res.status(500).send({auth: false, message: 'Unable to verify token.'})
   }
 }
 
 module.exports = {
   addToken,
+  removeToken,
   verifyToken
 }

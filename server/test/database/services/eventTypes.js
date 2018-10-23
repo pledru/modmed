@@ -1,6 +1,26 @@
 const assert = require('chai').assert;
 const EventTypeService = require('../../../src/database/services/eventTypeService')
 
+async function createTable() {
+  const eventTypeService = new EventTypeService()
+
+  try {
+    let data = await eventTypeService.createTable()
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+async function deleteTable() {
+  const eventTypeService = new EventTypeService()
+
+  try {
+    let data = await eventTypeService.deleteTable()
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 async function test() {
   const eventTypeService = new EventTypeService()
   let types = [
@@ -53,27 +73,30 @@ async function test() {
       score: 1 
     },
   ]
-  let p
+  let data
 
-  p = eventTypeService.createTable()
-  await p
-
-  for (let i = 0; i < types.length; i++) {
-    p = eventTypeService.add(types[i])
-    await p
-    p.then(data => { console.log(data) } ).catch(error => console.log(error))
+  try {
+    for (let i = 0; i < types.length; i++) {
+      data = await eventTypeService.add(types[i])
+    }
+  } catch (error) {
+    console.log(error)
   }
 
-  p = eventTypeService.list()
-  await p
-  p.then(data => {
-    assert.equal(data.Items.length, 12);
+  try {
+    data = await eventTypeService.list()
     data.Items.forEach(element => console.log(element))
-  }).catch(error => console.log(error))
+  } catch (error) {
+    console.log(error)
+  }
 
-  p = eventTypeService.deleteTable()
-  await p
 }
 
-test()
+async function all() {
+  let data
+  //data = await createTable()
+  data = await test()
+  //data = await deleteTable()
+}
 
+all()

@@ -12,8 +12,20 @@ function submit() {
     },
     body: JSON.stringify(data)
   }).
-  then(res => res.json()).
-  then(response => {
+  then(res => {
+    if (res.status == 401) {
+      let footer = document.getElementById('footer')
+      while (footer.firstChild) {
+        footer.removeChild(footer.firstChild)
+      }
+      let n = document.createTextNode('Invalid Username/Password')
+      footer.appendChild(n)
+    } else if (res.status != 200) {
+    } else { // 200
+      window.location.href = 'main.html'
+    }
+    res.json().then(data => {
+    })
   }).
   catch(error => alert(error))
 }
@@ -27,6 +39,7 @@ function submit() {
 <br>
 <label for='password'>Password:</label>
 <input type='password' id='password' name='password' required />
+<div id='footer'></div>
 </div>
 
 <button onclick='submit()'>Login</button>

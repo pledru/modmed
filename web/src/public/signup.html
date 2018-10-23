@@ -22,7 +22,7 @@ function submit() {
   then(res => res.json()).
   then(response => {
     if (response.statusCode == 200) {
-      window.location.href = 'index.html'
+      window.location.href = 'main.html' // TODO
     } else {
       // TODO
       alert(response.statusCode)

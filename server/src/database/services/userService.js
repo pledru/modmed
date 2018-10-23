@@ -101,6 +101,10 @@ class UserService {
     })
   }
 
+  // TODO - XXXXXXX
+  updateScore(user) {
+  }
+
   updatePassword(user) {
     return new Promise((resolve, reject) => {
       if (!user.email || !user.password) {

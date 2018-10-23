@@ -1,14 +1,22 @@
 const express = require('express')
+let cookieParser = require('cookie-parser')
 const http = require('http')
 const app = express()
 const port = 8082
 
+app.use(cookieParser())
 app.use(express.json())
 app.use(express.static('public'))
 
+// NOT SURE THIS IS NEEDED???
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+  next()
+})
+
 app.get('/', (req, res) => {
-  let cookie = req.headers['cookie']
-  if (req.headers['cookie'] == undefined) {
+  let cookie = req.cookies.token
+  if (cookie == undefined) {
     res.sendfile('public/login.html')
   } else {
     // validate this cookie
@@ -16,17 +24,18 @@ app.get('/', (req, res) => {
       hostname: 'localhost',
       port: 8081,
       path: '/validate',
-      //method: 'GET',
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
-        'x-access-token': req.headers['cookie']
+        'x-access-token': cookie
       }
     }
+    console.log(options.headers)
     let serverReq = http.get(options, serverRes => {
       let data = ''
       serverRes.on('data', chunk => data += chunk );
       serverRes.on('end', () => {
-        if (serverRes.statusCode == 200) {
+        console.log(serverRes.statusCode)
+        if (serverRes.statusCode == 200) {  // XXXX - TODO 
           res.sendfile('public/main.html')
         } else {
           res.sendfile('public/login.html')
@@ -59,8 +68,8 @@ function forwardRequest(req, res, path, method) {
       'Content-Type': 'application/json; charset=utf-8'
     }
   }
-  if (req.headers['cookie'] != undefined) {
-    options.headers['x-access-token'] = req.headers['cookie']
+  if (req.cookies != undefined && req.cookies.token != undefined) {
+    options.headers['x-access-token'] = req.cookies.token
   }
   let postData = {}
   for (k in body) {
@@ -76,7 +85,8 @@ function forwardRequest(req, res, path, method) {
       if (token == undefined || serverRes.statusCode != 200) {
         res.status(serverRes.statusCode).send(data)
       } else {
-        res.setHeader('set-cookie', token)
+        //res.setHeader('set-cookie', token) XXXXX
+        res.cookie('token', token)
         res.send(data)
       }
     })
@@ -90,9 +100,15 @@ function forwardRequest(req, res, path, method) {
   serverReq.end()
 }
 
-app.get('/validate', (req, res) => forwardRequest(req, res, '/validate', 'GET') )
-app.post('/login', (req, res) => forwardRequest(req, res, '/login', 'POST') )
-app.post('/signup', (req, res) => forwardRequest(req, res, '/signup', 'POST') )
+app.get('/validate', (req, res) => forwardRequest(req, res, '/validate', 'GET'))
+app.post('/login', (req, res) => forwardRequest(req, res, '/login', 'POST'))
+app.get('/logout', (req, res) => {
+  res.clearCookie('token')
+  forwardRequest(req, res, '/logout', 'GET')
+})
+app.post('/signup', (req, res) => forwardRequest(req, res, '/signup', 'POST'))
+app.post('/scores', (req, res) => forwardRequest(req, res, '/scores', 'POST'))
+app.get('/eventtypes', (req, res) => forwardRequest(req, res, '/eventtypes', 'GET'))
 
 app.use((req, res) => res.sendStatus(404))
 

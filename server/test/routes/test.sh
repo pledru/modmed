@@ -9,4 +9,5 @@ curl localhost:8081/login -XPOST -i -H "Content-Type: application/json" -d '{"em
 curl localhost:8081/login -XPOST -i -H "Content-Type: application/json" -d '{"email": "test@xyz.com", "password": "123"}'|grep x-access-token|sed 's/x-access-token: //'
 
 
+curl localhost:8081/eventtypes -XGET
 

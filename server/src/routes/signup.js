@@ -4,7 +4,6 @@ const UserService = require('../database/services/userService')
 const { addToken } = require('../utilities/jwtUtil.js')
 
 router.post('/', (req, res) => {
-console.log('SIGNUP')
     const body = req.body
     const user = {
       email: body.email,
