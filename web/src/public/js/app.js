@@ -77,7 +77,18 @@ function loadEventType() {
   catch(error => alert(error)) 
 }
 
-function submitScore() {
+function loadLatest() {       // TODO
+  let url = '/events/latest'
+  fetch(url, {
+    credentials: 'same-origin'
+  }).
+  then(res => res.json()).
+  then(response => {
+  }).
+  catch(error => alert(error)) 
+}
+
+function submitEvents() {
   let choices = document.getElementById('choices')
   let children = choices.childNodes
   let values = []
@@ -87,20 +98,31 @@ function submitScore() {
       values.push(el.id)
     }
   }
-  let url = '/scores'
+  let url = '/events'
   fetch(url, {
     method: 'POST',
     credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
     },
-    body: JSON.stringify({score: values})
+    body: JSON.stringify({events: values})
   }).
   then(res => {
     if (res.status != 200) {
       // TODO
     }
     res.json().then(data => {
+      if (data.status == 'ok') {
+        // the selection has been saved for today. Disable it.
+        let choices = document.getElementById('choices')
+        let children = choices.childNodes
+        for (let i = 0; i <children.length; i++) {
+          let el = children[i]
+          el.disabled = true
+        }
+        let button = document.getElementById('submit')
+        submit.disabled = true
+      }
     })
   }).
   catch(error => alert(error))

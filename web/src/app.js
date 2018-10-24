@@ -8,11 +8,11 @@ app.use(cookieParser())
 app.use(express.json())
 app.use(express.static('public'))
 
-// NOT SURE THIS IS NEEDED???
-app.use((req, res, next) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
-  next()
-})
+//// NOT SURE THIS IS NEEDED???
+//app.use((req, res, next) => {
+  //res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+  //next()
+//})
 
 app.get('/', (req, res) => {
   let cookie = req.cookies.token
@@ -85,7 +85,6 @@ function forwardRequest(req, res, path, method) {
       if (token == undefined || serverRes.statusCode != 200) {
         res.status(serverRes.statusCode).send(data)
       } else {
-        //res.setHeader('set-cookie', token) XXXXX
         res.cookie('token', token)
         res.send(data)
       }
@@ -107,7 +106,8 @@ app.get('/logout', (req, res) => {
   forwardRequest(req, res, '/logout', 'GET')
 })
 app.post('/signup', (req, res) => forwardRequest(req, res, '/signup', 'POST'))
-app.post('/scores', (req, res) => forwardRequest(req, res, '/scores', 'POST'))
+app.post('/events', (req, res) => forwardRequest(req, res, '/events', 'POST'))
+app.get('/events/last', (req, res) => forwardRequest(req, res, '/events/last', 'GET'))
 app.get('/eventtypes', (req, res) => forwardRequest(req, res, '/eventtypes', 'GET'))
 
 app.use((req, res) => res.sendStatus(404))

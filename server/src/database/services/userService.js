@@ -165,40 +165,25 @@ class UserService {
   }
 
   delete(user) {
+    return new Promise((resolve, reject) => {
+      if (!user.email) {
+        reject()
+      }
+      let params = {
+        TableName: this.tableName,
+        Key: {'email': user.email}
+      }
+      docClient.delete(params, (err, data) => {
+        if (err) {
+          console.log(err)
+          reject(err)
+        } else {
+          resolve(data)
+        }
+      })
+    })
   }
 
 }
-
-async function test() {
-  user = {
-    email: 'u4@c1.com',
-    lastName: 'smith',
-    firstName: 'john'
-  }
-  let userService = new UserService();
-  let p
-
-  p = userService.createTable()
-  await p
-  p.then(data => console.log(data)).catch(reason => console.log(reason))
-
-  p = userService.add(user)
-  await p
-  p.then(data => console.log(data)).catch(reason => console.log(reason))
-
-  p = userService.list()
-  await p
-  p.then(data => {
-    data.Items.forEach(element => console.log(element))
-  }).catch(reason => console.log(reason))
-
-  p = userService.deleteTable()
-  await p
-  p.then(data => console.log(data)).catch(reason => console.log(reason))
-
-}
-
-//test()
-
 
 module.exports = UserService

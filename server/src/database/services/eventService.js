@@ -16,25 +16,25 @@ class EventService {
     let params = {
       TableName: this.tableName,
       KeySchema: [
-        { AttributeName: "email", KeyType: "HASH"},
-        { AttributeName: "timestamp", KeyType: "RANGE"}
+        { AttributeName: 'email', KeyType: 'HASH'},
+        { AttributeName: 'timestamp', KeyType: 'RANGE'}
       ],
       AttributeDefinitions: [
-        { AttributeName: "email", AttributeType: "S" },
-        { AttributeName: "timestamp", AttributeType: "N" }
+        { AttributeName: 'email', AttributeType: 'S' },
+        { AttributeName: 'timestamp', AttributeType: 'N' }
       ],
       ProvisionedThroughput: {
         ReadCapacityUnits: 10,
         WriteCapacityUnits: 10
       },
       LocalSecondaryIndexes: [
-        { IndexName: "timestamp",
+        { IndexName: 'timestamp',
           KeySchema: [
-            { AttributeName: "email", KeyType: "HASH" },
-            { AttributeName: "timestamp", KeyType: "RANGE" }
+            { AttributeName: 'email', KeyType: 'HASH' },
+            { AttributeName: 'timestamp', KeyType: 'RANGE' }
           ],
           Projection: {
-            ProjectionType: "ALL"
+            ProjectionType: 'ALL'
           }
         }
       ]
@@ -82,7 +82,7 @@ class EventService {
 
   add(event) {
     return new Promise((resolve, reject) => {
-      if (!event.email) {
+      if (!event.email || !event.timestamp) {
         reject()
       }
       let eventData = {
@@ -127,6 +127,7 @@ class EventService {
   }
 
   /*
+   * NOT NEEDED???
    * Check if a value has been entered for the current day.
    * TODO - return either null or the data
    */
@@ -135,12 +136,10 @@ class EventService {
     return new Promise((resolve, reject) => {
       let p = this.getLatest(email)
       p.then(data => {
-        console.log(data)
         if (data.Items.length == 0) {
           resolve(false)
           return
         }
-        console.log(data.Items[0].timestamp)
         let diff = (d.getTime() - data.Items[0].timestamp) / 1000
         if (diff > 3600) { // a day
           resolve(false)
@@ -155,6 +154,26 @@ class EventService {
       }).catch(reason => {
         console.log(data)
         reject(reason)
+      })
+    })
+  }
+
+  delete(event) {
+    return new Promise((resolve, reject) => {
+      if (!event.email || !event.timestamp) {
+        reject()
+      }
+      let params = {
+        TableName: this.tableName,
+        Key: {'email': event.email, 'timestamp': event.timestamp}
+      }
+      docClient.delete(params, (err, data) => {
+        if (err) {
+          console.log(err)
+          reject(err)
+        } else {
+          resolve(data)
+        }
       })
     })
   }

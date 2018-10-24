@@ -82,6 +82,12 @@ async function test() {
     console.log(error.message)
   }
 
+  try {
+    data = await userService.delete({email: 'u4@c1.com'})
+  } catch (error) {
+    console.log(error.message)
+  }
+
 }
 
 async function all() {
