@@ -133,10 +133,8 @@ class UserService extends BaseService {
     })
   }
 
-  addEvent(event) {
+  addEvent(email, event) {
     return new Promise((resolve, reject) => {
-      let email = event.email
-      delete event.email
       let params = {
         TableName: this.tableName,
         Key: {email: email},
