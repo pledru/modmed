@@ -1,75 +1,25 @@
 const AWS = require('aws-sdk')
 const bcrypt = require('bcrypt')
 const db = require('./db')
+const BaseService = require('./baseService')
 
 db.init
 
-const dynamodb = new AWS.DynamoDB()
 const docClient = new AWS.DynamoDB.DocumentClient()
 
-class UserService {
+class UserService extends BaseService {
 
-  constructor() {
-    this.tableName = db.name + '_' + db.mode + '_' + 'Users'
+  getName() {
+      return 'Users'
   }
 
-  createTable() {
-    let params = {
-      TableName: this.tableName,
-      KeySchema: [
-        { AttributeName: 'email', KeyType: 'HASH'}
-      ],
-      AttributeDefinitions: [
-        { AttributeName: 'email', AttributeType: 'S' }
-      ],
-      ProvisionedThroughput: {
-        ReadCapacityUnits: 10,
-        WriteCapacityUnits: 10
-      }
-    }
-    return new Promise((resolve, reject) => {
-      dynamodb.createTable(params, (err, data) => {
-        if (err) {
-          console.log(err)
-          reject(err)
-        } else {
-          resolve(data)
-        }
-      })
-    })
+  getKey() {
+    return 'email'
   }
 
-  deleteTable() {
-    let params = {
-      TableName: this.tableName
-    }
-    return new Promise((resolve, reject) => {
-      dynamodb.deleteTable(params, (err, data) => {
-        if (err) {
-          console.log(err)
-          reject(err)
-        } else {
-          resolve(data)
-        }
-      })
-    })
-  }
-
-  list() {
-    let params = {
-      TableName: this.tableName
-    }
-    return new Promise((resolve, reject) => {
-      docClient.scan(params, (err, data) => {
-        if (err) {
-          console.log(err)
-          reject(err)
-        } else {
-          data.Items.forEach(d => delete d.hashedpassword)
-          resolve(data.Items)
-        }
-      })
-    })
+  filter(d) {
+    delete d.hashedpassword
+    return d
   }
 
   create(user) {
@@ -99,10 +49,6 @@ class UserService {
         }
       })
     })
-  }
-
-  // TODO - XXXXXXX
-  updateScore(user) {
   }
 
   updatePassword(user) {
@@ -164,16 +110,45 @@ class UserService {
     })
   }
 
-  delete(user) {
+  getEvents(email) {
     return new Promise((resolve, reject) => {
-      if (!user.email) {
+      if (!email) {
         reject()
       }
       let params = {
         TableName: this.tableName,
-        Key: {'email': user.email}
+        ProjectionExpression: 'events',
+        KeyConditionExpression: '#email = :email',
+        ExpressionAttributeNames: {'#email': 'email'},
+        ExpressionAttributeValues: {':email': email }
       }
-      docClient.delete(params, (err, data) => {
+      docClient.query(params, (err, data) => {
+        if (err) {
+          console.log(err)
+          reject(err)
+        } else {
+          resolve(data.Items[0].events)
+        }
+      })
+    })
+  }
+
+  addEvent(event) {
+    return new Promise((resolve, reject) => {
+      let email = event.email
+      delete event.email
+      let params = {
+        TableName: this.tableName,
+        Key: {email: email},
+        UpdateExpression: 'set #events = list_append(if_not_exists(#events, :empty_list), :event)',
+        ExpressionAttributeNames: { '#events': 'events' },
+        ExpressionAttributeValues: {
+          ':event': [ event ],
+          ':empty_list': []
+        },
+        ReturnValues: 'NONE'
+      }
+      docClient.update(params, (err, data) => {
         if (err) {
           console.log(err)
           reject(err)
