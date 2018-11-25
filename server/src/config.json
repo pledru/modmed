@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "jwt_secret": "942b9dfe-7bc1-4114-80a1-6722a6b117d4",
+    "name": "dev",
+    "port": 8081,
+    "region": "us-west-2",
+    "endpoint": "http://localhost:8000"
+  },
+  "test": {
+    "jwt_secret": "942b9dfe-7bc1-4114-80a1-6722a6b117d4",
+    "name": "test",
+    "port": 8081,
+    "region": "us-west-2",
+    "endpoint": "http://localhost:8000"
+  },
+  "prod": {
+    "jwt_secret": "<tbd>",
+    "name": "prod",
+    "port": 8081,
+    "region": "us-west-2",
+    "endpoint": "https://dynamodb.us-east-2.amazonaws.com"
+  }
+}
