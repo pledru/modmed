@@ -1,13 +1,13 @@
 const AWS = require('aws-sdk')
+const { config } = require('../../config')
 
 let init_db = false
-let mode_db = 'test'
 
 function init() {
   if (init_db) return;
   AWS.config.update({
-    region: 'us-west-2',
-    endpoint: 'http://localhost:8000'
+    region: config.region,
+    endpoint: config.endpoint
   })
   init_db = true;
 }
@@ -15,7 +15,7 @@ function init() {
 const db = {
   init: init(),
   name: 'modmed',
-  mode: 'test'
+  mode: config.name
 }
 
 module.exports = db

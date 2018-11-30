@@ -1,3 +1,4 @@
+const { config } = require('../config.js')
 const jwt = require('jsonwebtoken')
 const UserService = require('../database/services/userService')
 
@@ -6,7 +7,7 @@ function noCaching(res) {
 }
 
 function addToken(email, id, res) {
-  const token = jwt.sign({email: email, id: id}, process.env.JWT_SECRET, {expiresIn: 86400})
+  const token = jwt.sign({email: email, id: id}, config.jwt_secret, {expiresIn: 86400})
   res.setHeader('x-access-token', token)
 }
 
@@ -20,7 +21,7 @@ async function verifyToken(req, res, next) {
     return res.status(401).send({auth: false, message: 'No token provided.'})
   }
   try {
-    let decoded = jwt.verify(token, process.env.JWT_SECRET)
+    let decoded = jwt.verify(token, config.jwt_secret)
     // verify the id has not changed (if the user updated the password)
     const userService = new UserService()
     const data = await userService.get({email: decoded.email})
@@ -35,7 +36,11 @@ async function verifyToken(req, res, next) {
       }
     }
   } catch (error) {
+//XXXXXXX - TODO
     console.log(error)
+    //console.log(error.name)
+    //TokenExpiredError
+//XXXXXXX
     return res.status(500).send({auth: false, message: 'Unable to verify token.'})
   }
 }

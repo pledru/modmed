@@ -9,12 +9,12 @@ router.post('/', (req, res) => {
       email: body.email,
       password: body.password,
       firstName: body.firstName,
-      lastName: body.lastName
+      lastName: body.lastName,
+      creationTime: new Date().getTime()
     }
     const userService = new UserService()
     const p = userService.create(user)
     p.then(data => {
-      console.log(data)
       const respData = { code: 'ok' }
       addToken(data.email, data.id, res)
       res.status(200).send(respData)
