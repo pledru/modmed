@@ -111,7 +111,6 @@ class UserService extends BaseService {
   }
 
   getEvents(email, from, to) {
-console.log(from + ' ' + to);
     return new Promise((resolve, reject) => {
       if (!email) {
         reject()
