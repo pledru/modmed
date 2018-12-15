@@ -85,7 +85,7 @@ async function test() {
 
   try {
     data = await eventTypeService.list()
-    data.Items.forEach(element => console.log(element))
+    data.forEach(element => console.log(element))
   } catch (error) {
     console.log(error)
   }

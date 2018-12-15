@@ -17,11 +17,11 @@ async function getEventType() {
   return eventTypes
 }
 
-async function getEvents(email) {
+async function getEvents(email, from, to) {
   const userService = new UserService()
   let data
   try {
-    data = await userService.getEvents(email)
+    data = await userService.getEvents(email, from, to)
     return data
   } catch (error) {
     console.log(error)
@@ -71,8 +71,10 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   const body = req.body
   const email = body.email
+  const from = req.query.from
+  const to = req.query.to
   try {
-    let events = await getEvents(email)
+    let events = await getEvents(email, from, to)
     res.send(events)
   } catch (error) {
     console.log(error)

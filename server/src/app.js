@@ -1,3 +1,4 @@
+const { config } = require('./config')
 const express = require('express')
 const app = express()
 const loginRouter = require('./routes/login')
@@ -8,7 +9,7 @@ const eventsRouter = require('./routes/events')
 const eventTypesRouter = require('./routes/eventTypes')
 const { verifyToken } = require('./utilities/jwtUtil.js')
 
-const port = 8081
+const port = config.port
 
 app.use(express.json())
 

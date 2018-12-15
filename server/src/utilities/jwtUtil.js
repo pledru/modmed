@@ -36,12 +36,11 @@ async function verifyToken(req, res, next) {
       }
     }
   } catch (error) {
-//XXXXXXX - TODO
-    console.log(error)
-    //console.log(error.name)
-    //TokenExpiredError
-//XXXXXXX
-    return res.status(500).send({auth: false, message: 'Unable to verify token.'})
+    if (error.name == 'TokenExpiredError') {
+      return res.status(403).send({auth: false, message: 'token expired.'})
+    } else {
+      return res.status(500).send({auth: false, message: 'Unable to verify token.'})
+    }
   }
 }
 

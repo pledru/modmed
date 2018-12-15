@@ -110,9 +110,13 @@ class UserService extends BaseService {
     })
   }
 
-  getEvents(email) {
+  getEvents(email, from, to) {
+console.log(from + ' ' + to);
     return new Promise((resolve, reject) => {
       if (!email) {
+        reject()
+      }
+      if ((from != undefined && isNaN(from)) || (to != undefined && isNaN(to))) {
         reject()
       }
       let params = {
@@ -127,7 +131,21 @@ class UserService extends BaseService {
           console.log(err)
           reject(err)
         } else {
-          resolve(data.Items[0].events)
+          let events = [];
+          if (from != undefined || to != undefined) {
+            for (let i = 0; i < data.Items[0].events.length; i++) {
+              if (from != undefined && data.Items[0].events[i].timestamp < from) {
+                continue
+              }
+              if (to != undefined && data.Items[0].events[i].timestamp > to) {
+                continue
+              }
+              events.push(data.Items[0].events[i]);
+            }
+          } else {
+            events = data.Items[0].events
+          }
+          resolve(events)
         }
       })
     })

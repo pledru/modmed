@@ -31,15 +31,45 @@ async function test() {
   }
   let data
 
-  //try {
-    //data = await userService.create(user)
-  //} catch (error) {
-    //console.log(error)
-  //}
+  try {
+    data = await userService.create(user)
+  } catch (error) {
+    console.log(error)
+  }
+
+  let today = new Date().getTime()
+
+  let events = [
+    { timestamp: 5, score: 4, types: [1, 2, 3, 4] },
+    { timestamp: 6, score: 4, types: [1, 2, 3, 5] },
+    { timestamp: today, score: 3, types: [2, 3, 4] }
+  ]
+
+  try {
+    for (let i = 0; i < events.length; i++) {
+      data = await userService.addEvent(user.email, events[i])
+    }
+  } catch (error) {
+    console.log(error)
+  }
 
   try {
     data = await userService.list()
     //assert.equal(data.length, 1);
+    data.forEach(element => console.log(element))
+  } catch (error) {
+    console.log(error)
+  }
+
+  try {
+    data = await userService.getEvents('u4@c1.com')
+    data.forEach(element => console.log(element))
+  } catch (error) {
+    console.log(error)
+  }
+
+  try {
+    data = await userService.getEvents('u4@c1.com', 6)
     data.forEach(element => console.log(element))
   } catch (error) {
     console.log(error)
@@ -52,19 +82,19 @@ async function test() {
     console.log(error.message)
   }
 
-  //try {
-    //data = await userService.get({email: 'u4@c1.com', password: '124'})
-  //} catch (error) {
-    //assert.equal(error.message, 'invalidPassword')
-    //console.log(error.message)
-  //}
+  try {
+    data = await userService.get({email: 'u4@c1.com', password: '124'})
+  } catch (error) {
+    assert.equal(error.message, 'invalidPassword')
+    console.log(error.message)
+  }
 
-  //try {
-    //data = await userService.get({email: 'u4@c2.com', password: '123'})
-  //} catch (error) {
-    //assert.equal(error.message, 'unknownUser')
-    //console.log(error.message)
-  //}
+  try {
+    data = await userService.get({email: 'u4@c2.com', password: '123'})
+  } catch (error) {
+    assert.equal(error.message, 'unknownUser')
+    console.log(error.message)
+  }
 
   try {
     data = await userService.updatePassword({email: 'u4@c1.com', password: '124'})
@@ -74,7 +104,6 @@ async function test() {
   }
 
   try {
-    //data = await userService.get({email: 'u4@c1.com', password: '123'})
     data = await userService.get({email: 'u4@c1.com', password: '124'})
     console.log(data)
     assert.equal('u4@c1.com', data.email)
@@ -83,7 +112,7 @@ async function test() {
   }
 
   try {
-    data = await userService.delete({email: 'u4@c1.com'})
+    data = await userService.delete('u4@c1.com')
   } catch (error) {
     console.log(error.message)
   }
@@ -92,9 +121,9 @@ async function test() {
 
 async function all() {
   let data
-  //data = await createTable()
+  data = await createTable()
   data = await test()
-  //data = await deleteTable()
+  data = await deleteTable()
 }
 
 all()
