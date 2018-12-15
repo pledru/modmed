@@ -1,3 +1,5 @@
+sudo yum install nodejs npm --enablerepo=epel
+
 RESTful server
 
 How to use access token for a RESTful API:
@@ -6,7 +8,9 @@ How to use access token for a RESTful API:
 
 # install:
 
+$ npm config set strict-ssl false
 $ npm install express
 $ npm install bcrypt
 $ npm install jsonwebtoken
 $ npm install uuid
+$ npm install chai
