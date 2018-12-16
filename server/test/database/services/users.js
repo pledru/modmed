@@ -37,17 +37,18 @@ async function test() {
     console.log(error)
   }
 
+  let aDay = 24 * 60 * 60 * 1000
   let today = new Date().getTime()
 
   let events = [
-    { timestamp: 5, score: 4, types: [1, 2, 3, 4] },
-    { timestamp: 6, score: 4, types: [1, 2, 3, 5] },
+    { timestamp: 0, score: 4, types: [1, 2, 3, 4] },
+    { timestamp: aDay + 1, score: 4, types: [1, 2, 3, 5] },
     { timestamp: today, score: 3, types: [2, 3, 4] }
   ]
 
   try {
     for (let i = 0; i < events.length; i++) {
-      data = await userService.addEvent(user.email, events[i])
+      data = await userService.addEvent(user.email, events[i], 0)
     }
   } catch (error) {
     console.log(error)

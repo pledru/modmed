@@ -7,6 +7,39 @@ db.init
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 
+/*
+ * Checks that the second date is greater than the first
+ * and whether two dates expressed in time
+ * are on different days:
+ * - more than 24 hours
+ * or on different day relative to a timezone
+ */
+function validateDate(time1, time2, tzOffset) {
+  let dayMilliSec = 24 * 60 * 60 * 1000
+  if (time2 < time1) {
+    return false
+  }
+  /*
+   * if the two times are more than a day apart, this is valid.
+   */
+  if ((time1 - time2) > dayMilliSec) {
+    return true
+  }
+  /* convert the offset in seconds */
+  let offset = tzOffset * 60 * 1000
+  /* shift the times */
+  let t1 = time1 + offset
+  let t2 = time2 + offset
+  /*
+   * if the two derived dates relative to the timezone are on
+   * different days, this is valid
+   */
+  if (new Date(t1).getDate() != new Date(t2).getDate()) {
+    return true
+  }
+  return false
+}
+
 class UserService extends BaseService {
 
   getName() {
@@ -82,6 +115,8 @@ class UserService extends BaseService {
       }
       let params = {
         TableName: this.tableName,
+        // retrieve all the fields except the events
+        ProjectionExpression: 'id, email, firstName, lastName, hashedpassword, lastEvent',
         KeyConditionExpression: '#email = :email',
         ExpressionAttributeNames: {'#email': 'email'},
         ExpressionAttributeValues: {':email': user.email }
@@ -150,14 +185,33 @@ class UserService extends BaseService {
     })
   }
 
-  addEvent(email, event) {
+  async addEvent(email, event, tz) {
+    if (email == undefined || event == undefined || tz == undefined) {
+      throw new Error('missing parameter')
+    }
+    try {
+      let r = await this.get({email: email})
+      if (r.lastEvent != undefined) {
+        // ensure that no event already exist for the given day
+        let valid = validateDate(r.lastEvent.timestamp, event.timestamp, tz)
+        if (!valid) {
+          throw new Error('invalid date: ' + event.timestamp + ' previous: ' + r.lastEvent.timestamp)
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
     return new Promise((resolve, reject) => {
+      let expr = 'set #lastEvent = :lastEvent, ' +
+                 '#events = list_append(if_not_exists(#events, :empty_list), :event)'
       let params = {
         TableName: this.tableName,
         Key: {email: email},
-        UpdateExpression: 'set #events = list_append(if_not_exists(#events, :empty_list), :event)',
-        ExpressionAttributeNames: { '#events': 'events' },
+        UpdateExpression: expr,
+        ExpressionAttributeNames: { '#lastEvent' : 'lastEvent', '#events': 'events' },
         ExpressionAttributeValues: {
+          ':lastEvent': event,
           ':event': [ event ],
           ':empty_list': []
         },
