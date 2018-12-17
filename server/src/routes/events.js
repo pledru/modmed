@@ -29,11 +29,11 @@ async function getEvents(email, from, to) {
   }
 }
 
-async function addEvent(email, event) {
+async function addEvent(email, event, tz) {
   const userService = new UserService()
   let data
   try {
-    data = await userService.addEvent(email, event)
+    data = await userService.addEvent(email, event, tz)
   } catch (error) {
     console.log(error)
     throw (error)
@@ -45,6 +45,7 @@ router.post('/', async (req, res) => {
   const body = req.body
   const email = body.email
   const types = body.types
+  const tz = body.tz
   let score = 0
   let eventTypes = await getEventType()
   for (let i = 0; i < types.length; i++) {
@@ -60,7 +61,7 @@ router.post('/', async (req, res) => {
     types: types
   }
   try {
-    let r = await addEvent(email, event)
+    let r = await addEvent(email, event, tz)
     res.send({status: 'ok'})
   } catch (error) {
     console.log(error)

@@ -189,17 +189,18 @@ class UserService extends BaseService {
     if (email == undefined || event == undefined || tz == undefined) {
       throw new Error('missing parameter')
     }
+    let r
     try {
-      let r = await this.get({email: email})
-      if (r.lastEvent != undefined) {
-        // ensure that no event already exist for the given day
-        let valid = validateDate(r.lastEvent.timestamp, event.timestamp, tz)
-        if (!valid) {
-          throw new Error('invalid date: ' + event.timestamp + ' previous: ' + r.lastEvent.timestamp)
-        }
-      }
+      r = await this.get({email: email})
     } catch (error) {
       console.log(error);
+    }
+    if (r != undefined && r.lastEvent != undefined) {
+      // ensure that no event already exist for the given day
+      let valid = validateDate(r.lastEvent.timestamp, event.timestamp, tz)
+      if (!valid) {
+        throw new Error('invalid date: ' + event.timestamp + ' previous: ' + r.lastEvent.timestamp)
+      }
     }
 
     return new Promise((resolve, reject) => {
