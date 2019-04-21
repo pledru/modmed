@@ -16,6 +16,10 @@ class EventTypeService extends BaseService {
     return 'id'
   }
 
+  getKeyType() {
+    return 'N'
+  }
+
   add(eventType) {
     return new Promise((resolve, reject) => {
       if (!eventType.id || !eventType.description || !eventType.score) {

@@ -50,6 +50,10 @@ class UserService extends BaseService {
     return 'email'
   }
 
+  getKeyType() {
+    return 'S'
+  }
+
   filter(d) {
     delete d.hashedpassword
     return d

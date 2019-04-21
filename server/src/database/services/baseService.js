@@ -22,6 +22,11 @@ class BaseService {
     throw new Error('Key required by subclass');
   }
 
+  getKeyType() {
+    // implemented by sub classes, return the name of the table
+    throw new Error('KeyType required by subclass');
+  }
+
   createTable() {
     let params = {
       TableName: this.tableName,
@@ -29,7 +34,7 @@ class BaseService {
         { AttributeName: this.getKey(), KeyType: 'HASH'}
       ],
       AttributeDefinitions: [
-        { AttributeName: this.getKey(), AttributeType: 'S' }
+        { AttributeName: this.getKey(), AttributeType: this.getKeyType() }
       ],
       ProvisionedThroughput: {
         ReadCapacityUnits: 10,
